@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VietStats — Vietnam in Numbers</title>
+<meta name="description" content="Vietnam in numbers: population, economy, trade, labour, health, education, environment and every province — from Viet Nam's official statistics, 2020–2024.">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="#/">
+      <svg class="brand-mark" width="34" height="34" viewBox="0 0 34 34" role="img" aria-label="VietStats mark">
+        <rect x="1" y="1" width="32" height="32" rx="8" fill="#d97706"/>
+        <rect x="8" y="18" width="4" height="8" rx="1" fill="#ffffff"/>
+        <rect x="15" y="12" width="4" height="14" rx="1" fill="#ffffff"/>
+        <rect x="22" y="8" width="4" height="18" rx="1" fill="#ffffff"/>
+      </svg>
+      <span class="brand-name">VietStats</span>
+      <span class="brand-tag">Vietnam in Numbers</span>
+    </a>
+    <label class="header-year">Year
+      <select id="year-select" aria-label="Select year">
+        <option value="2020">2020</option>
+        <option value="2021">2021</option>
+        <option value="2022">2022</option>
+        <option value="2023">2023</option>
+        <option value="2024" selected>2024</option>
+      </select>
+    </label>
+  </div>
+  <nav class="main-nav" aria-label="Sections">
+    <a href="#/">Overview</a>
+    <a href="#/population">Population</a>
+    <a href="#/economy">Economy</a>
+    <a href="#/labour">Labour &amp; Income</a>
+    <a href="#/health">Health</a>
+    <a href="#/education">Education</a>
+    <a href="#/environment">Environment &amp; Energy</a>
+    <a href="#/regions">Regions</a>
+    <a href="#/explorer">Data Explorer</a>
+    <a href="#/methodology">Methodology</a>
+  </nav>
+</header>
+<main class="page" id="view"></main>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <nav aria-label="Footer">
+      <a href="#/">Overview</a>
+      <a href="#/population">Population</a>
+      <a href="#/economy">Economy</a>
+      <a href="#/labour">Labour &amp; Income</a>
+      <a href="#/health">Health</a>
+      <a href="#/education">Education</a>
+      <a href="#/environment">Environment &amp; Energy</a>
+      <a href="#/regions">Regions</a>
+      <a href="#/explorer">Data Explorer</a>
+      <a href="#/methodology">Methodology</a>
+    </nav>
+    <p>VietStats is an independent presentation of Viet Nam&rsquo;s official statistics. It is not affiliated with the General Statistics Office of Viet Nam or any government body. Every figure names its source and year; see <a href="#/methodology">Methodology &amp; Sources</a>.</p>
+    <p>Figures: General Statistics Office of Viet Nam, Statistical Yearbook 2024; Ministry of Industry and Trade; Ministry of Labour, Invalids and Social Affairs; Ministry of Health; Ministry of Education and Training; Ministry of Natural Resources and Environment; World Bank, World Development Indicators. Site text, design and charts are original work.</p>
+  </div>
+</footer>
+<script type="module" src="./main.js"></script>
+</body>
+</html>
