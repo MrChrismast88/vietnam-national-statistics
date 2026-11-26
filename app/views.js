@@ -30,7 +30,8 @@ export const state = {
   regionFilter: 'All regions',
   explorerQuery: '',
   explorerSort: { key: 'name', dir: 1 },
-  regionsSort: { key: 'pop', dir: -1 }
+  regionsSort: { key: 'pop', dir: -1 },
+  compare: []
 };
 
 function esc(s) {
@@ -245,10 +246,41 @@ function pageEnvironment() {
 function provinceRows(list) {
   return list.map((p) => {
     const slug = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    return '<tr><td><a href="#/regions/' + slug + '">' + esc(p.name) + '</a></td><td>' + esc(p.region) + '</td>'
+    const picked = state.compare.indexOf(p.name) !== -1;
+    const full = !picked && state.compare.length >= 3;
+    return '<tr><td><input type="checkbox" data-compare="' + esc(p.name) + '"'
+      + (picked ? ' checked' : '') + (full ? ' disabled title="Already comparing 3 provinces — uncheck one to change it"' : '')
+      + ' aria-label="Compare ' + esc(p.name) + '"></td>'
+      + '<td><a href="#/regions/' + slug + '">' + esc(p.name) + '</a></td><td>' + esc(p.region) + '</td>'
       + '<td class="num">' + p.pop.toFixed(2) + '</td><td class="num">$' + formatNumber(p.grdpPc, 0) + '</td>'
       + '<td class="num">' + p.urban.toFixed(1) + '%</td></tr>';
   }).join('');
+}
+
+// Side-by-side comparison of up to 3 provinces picked in the table below.
+// Highest value in each row is bold. Shown only when at least one province
+// is picked; the table checkboxes (see provinceRows) cap the pick at 3.
+function comparePanel() {
+  const sel = state.compare.map((n) => PROVINCES.find((p) => p.name === n)).filter(Boolean);
+  if (sel.length === 0) return '';
+  const metrics = [
+    ['Population (million)', sel.map((p) => p.pop), (v) => v.toFixed(2)],
+    ['GRDP per capita', sel.map((p) => p.grdpPc), (v) => '$' + formatNumber(v, 0)],
+    ['Urban share', sel.map((p) => p.urban), (v) => v.toFixed(1) + '%']
+  ];
+  const slugOf = (p) => p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const head = '<tr><th></th>' + sel.map((p) => '<th><a href="#/regions/' + slugOf(p) + '">' + esc(p.name) + '</a></th>').join('') + '</tr>';
+  const body = metrics.map((m) => {
+    const best = Math.max.apply(null, m[1]);
+    return '<tr><td>' + m[0] + '</td>' + m[1].map((v) => '<td class="num">' + (v === best ? '<strong>' + m[2](v) + '</strong>' : m[2](v)) + '</td>').join('') + '</tr>';
+  }).join('');
+  const hint = sel.length < 3
+    ? 'Tick up to 3 provinces in the table below to compare them here.'
+    : 'Comparing 3 provinces — uncheck one below to swap it out.';
+  return '<section class="card"><div class="chart-head"><h3>Compare provinces</h3>'
+    + '<button type="button" id="clear-compare" style="padding:7px 14px;border:1px solid var(--line);border-radius:8px;background:#fff;font-weight:600;cursor:pointer;color:var(--body)">Clear comparison</button></div>'
+    + '<div class="table-wrap"><table class="data-table"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div>'
+    + sourceLine(hint + ' Highest value in each row is in bold. Population and GRDP per capita: GSO, Statistical Yearbook 2024.') + '</section>';
 }
 
 function pageRegions() {
@@ -270,10 +302,12 @@ function pageRegions() {
     + '<section class="card"><h3>Largest provinces by population</h3>'
     + rankBars(top.map((p) => [p.name, p.pop, p.pop.toFixed(2) + 'm']))
     + sourceLine('GSO population estimates, 2024.') + '</section>'
+    + comparePanel()
     + '<section class="card"><h2>All provinces in this list</h2>'
     + '<div class="table-tools"><label>Region <select id="region-filter">' + options + '</select></label>'
     + '<span>' + sorted.length + ' of ' + PROVINCES.length + ' provinces shown</span></div>'
     + '<div class="table-wrap"><table class="data-table"><thead><tr>'
+    + '<th>Compare</th>'
     + '<th>' + sortBtn('name', 'Province') + '</th><th>' + sortBtn('region', 'Region') + '</th>'
     + '<th class="num">' + sortBtn('pop', 'Population (m)') + '</th>'
     + '<th class="num">' + sortBtn('grdpPc', 'GRDP per capita') + '</th>'
@@ -407,6 +441,29 @@ function wireControls() {
     regionFilter.addEventListener('change', () => {
       state.regionFilter = regionFilter.value;
       renderRoute();
+    });
+  }
+  document.querySelectorAll('[data-compare]').forEach((box) => {
+    box.addEventListener('change', () => {
+      const name = box.getAttribute('data-compare');
+      if (box.checked) {
+        if (state.compare.length >= 3) { box.checked = false; return; }
+        state.compare.push(name);
+      } else {
+        state.compare = state.compare.filter((n) => n !== name);
+      }
+      const y = window.scrollY;
+      renderRoute();
+      window.scrollTo(0, y);
+    });
+  });
+  const clearCompare = document.getElementById('clear-compare');
+  if (clearCompare) {
+    clearCompare.addEventListener('click', () => {
+      state.compare = [];
+      const y = window.scrollY;
+      renderRoute();
+      window.scrollTo(0, y);
     });
   }
   document.querySelectorAll('[data-sort]').forEach((btn) => {
